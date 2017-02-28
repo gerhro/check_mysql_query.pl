@@ -1,0 +1,118 @@
+/*******************************
+Assign Sercie Groups  | Subsystems
+*******************************/
+object ServiceGroup "mysql-query" {
+  display_name = "Mysql Query Checks"
+  assign where service.check_command == "check_mysql_query"
+}
+
+/*******************************
+Services Template
+*******************************/
+template Service "mysql-query" {
+  import "generic-service"
+  vars.mysql_query_port = "3306"
+  check_command = "check_mysql_query"
+}
+
+object CheckCommand "check_mysql_query" {
+	import "plugin-check-command"
+	import "ipv4-or-ipv6"
+
+	command = [ PluginContribDir + "/check_mysql_query.pl" ]
+	arguments = {
+        "--host" = {
+            value = "$mysql_query_hostname$"
+            description = "MySQL host"
+        }
+		"--port" = {
+            value = "$mysql_query_port$"
+            description = "Mysql Port"
+        }
+        "--user" = {
+            value = "$mysql_query_username$"
+            description = "Mysql User"
+        }
+        "--password" = {
+            value = "$mysql_query_password$"
+            description = "MySQL password"
+        }
+		"--database" = {
+            value = "$mysql_query_database$"
+            description = "MySQL database"
+        }
+		"--field" = {
+            value = "$mysql_query_field$"
+            description = "Field number/name to check the results of (defaults to '1')"
+        }
+		"--query" = {
+            value = "$mysql_query_query$"
+            description = "MySQL query to execute"
+        }
+        "--warning" = {
+            value = "$mysql_query_warning$"
+            description = "Warning  threshold or ran:ge (inclusive)"
+        }
+        "--critical" = {
+            value = "$mysql_query_critical$"
+            description = "Critical threshold or ran:ge (inclusive)"
+        }
+        "--label" = {
+            value = "$mysql_query_label$"
+            description = "Perfdata label. If not specified uses field name or Undefined if field name doesn't match a known regex of chars"
+        }
+        "--no-querytime" = {
+            value = "$mysql_query_no_querytime$"
+            description = "Do not output the mysql query time"
+        }
+        "--qraph" = {
+            value = "$mysql_query_perfdata$"
+            set_if = "$mysql_query_perfdata$"
+            description = "Perfdata output for graphing"
+        }
+        "--output" = {
+            value = "$mysql_query_expected_outpu$"
+            description = "Exact output to expect"
+        }
+        "--epoch" = {
+            value = "$mysql_query_epoch$"
+            description = "Subtract result from current time in epoch format from result (useful for timestamp based comparisons)"
+        }
+        "--message" = {
+            value = "$mysql_query_message$"
+            description = "Message to output after result. Can take a printf string with a single substitution (defaults to 'query returned')"
+        }
+        "--message-prepend" = {
+            value = "$mysql_query_message_prepend$"
+            description = "Display message before rather than after result (prepend)"
+        }
+        "--regex" = {
+            value = "$mysql_query_regex$"
+            description = "Regex to match the result against"
+        }
+        "--units" = {
+            value = "$mysql_query_units$"
+            description = "Units of measurement for graphing output (%/s/ms/us/B/KB/MB/TB/c)"
+        }
+        "--short" = {
+            value = "$mysql_query_short$"
+            set_if = "$mysql_query_short$"
+            description = "Shorten output, do not output message just result"
+        }
+        "--timeout" = {
+            value = "$mysql_query_timeout$"
+            description = "Timeout in secs (default: 10)"
+        }
+	}
+
+	vars = {
+    mysql_query_no_querytime = false
+    mysql_query_perfdata = true
+    mysql_query_hostname = "$host.address$"
+    mysql_query_username = "$mysql_health_username$"
+    mysql_query_password = "$mysql_health_password$"
+    mysql_query_database = "$mysql_health_database$"
+    mysql_query_label = "$mysql_health_name2$"
+    mysql_query_port = "$mysql_health_port$"
+  }
+}
